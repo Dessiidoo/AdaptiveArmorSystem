@@ -21,7 +21,12 @@ import {
   Flame,
   Siren,
   Rocket,
-  Anchor
+  Anchor,
+  Car,
+  Plane,
+  Bot,
+  Cpu,
+  User
 } from "lucide-react";
 import { TacticalFrame, StatBar } from "@/components/tactical/frame";
 import helmetTactical from "@assets/generated_images/futuristic_tactical_helmet_schematic.png";
@@ -30,74 +35,150 @@ import helmetDeepSea from "@assets/generated_images/futuristic_deep_sea_diver_he
 import helmetPolice from "@assets/generated_images/futuristic_police_riot_helmet_schematic.png";
 import helmetFire from "@assets/generated_images/futuristic_firefighter_rescue_helmet_schematic.png";
 
+// New Asset Imports (Placeholders until generation completes)
+import vehicleTank from "@assets/generated_images/futuristic_armored_tank_schematic.png";
+import vehicleJet from "@assets/generated_images/futuristic_aerospace_fighter_jet_schematic.png";
+import vehicleMech from "@assets/generated_images/futuristic_combat_mech_robot_schematic.png";
+import vehicleSub from "@assets/generated_images/futuristic_tactical_submarine_schematic.png";
+
 import { cn } from "@/lib/utils";
 
-type SuitVariant = "tactical" | "space" | "ocean" | "urban" | "rescue";
+type UnitCategory = "human" | "vehicle" | "aircraft" | "marine" | "robotics";
 
-const SUIT_CONFIGS = {
+interface AegisUnit {
+  id: string;
+  category: UnitCategory;
+  name: string;
+  role: string;
+  color: string;
+  borderColor: string;
+  bgGlow: string;
+  icon: any;
+  image: string;
+  features: string[];
+  stats: {
+    label1: string;
+    val1: string;
+    label2: string;
+    val2: string;
+    desc: string;
+  };
+}
+
+const AEGIS_UNITS: Record<string, AegisUnit> = {
+  // HUMANS
   tactical: {
+    id: "tactical",
+    category: "human",
     name: "SpecOps Mark IV",
-    role: "Tactical Infiltration",
+    role: "Infantry",
     color: "text-primary",
     borderColor: "border-primary",
     bgGlow: "shadow-[0_0_15px_rgba(0,240,255,0.1)]",
-    icon: Target,
+    icon: User,
     image: helmetTactical,
-    features: ["Active Camouflage", "Ballistic Weave", "Thermal Vision"]
+    features: ["Active Camouflage", "Ballistic Weave", "Thermal Vision"],
+    stats: { label1: "Internal Temp", val1: "36.5°C", label2: "Airflow", val2: "98%", desc: "Smart-fabric lining adapts to body temperature." }
   },
   space: {
+    id: "space",
+    category: "human",
     name: "Aether EVA-7",
-    role: "Orbital Operations",
+    role: "Astronaut",
     color: "text-amber-200",
     borderColor: "border-amber-200",
     bgGlow: "shadow-[0_0_15px_rgba(253,230,138,0.1)]",
     icon: Rocket,
     image: helmetSpace,
-    features: ["Rad-Shielding", "O2 Recycler", "Vacuum Seal"]
-  },
-  ocean: {
-    name: "Abyssal X-9",
-    role: "Deep Sea Expl.",
-    color: "text-cyan-400",
-    borderColor: "border-cyan-400",
-    bgGlow: "shadow-[0_0_15px_rgba(34,211,238,0.1)]",
-    icon: Anchor,
-    image: helmetDeepSea,
-    features: ["Pressure Hull", "Sonar Array", "Rebreather"]
-  },
-  urban: {
-    name: "Enforcer Sentinel",
-    role: "Law Enforcement",
-    color: "text-blue-500",
-    borderColor: "border-blue-500",
-    bgGlow: "shadow-[0_0_15px_rgba(59,130,246,0.1)]",
-    icon: Siren,
-    image: helmetPolice,
-    features: ["Impact Dampening", "Face Recog.", "Comms Link"]
+    features: ["Rad-Shielding", "O2 Recycler", "Vacuum Seal"],
+    stats: { label1: "Suit Pressure", val1: "4.3 PSI", label2: "O2 Level", val2: "99%", desc: "Radiation shielding active. Life support nominal." }
   },
   rescue: {
+    id: "rescue",
+    category: "human",
     name: "Inferno Guard",
-    role: "Hazard Response",
+    role: "Response",
     color: "text-orange-500",
     borderColor: "border-orange-500",
     bgGlow: "shadow-[0_0_15px_rgba(249,115,22,0.1)]",
     icon: Flame,
     image: helmetFire,
-    features: ["Heat Shielding", "Toxin Filter", "Struct. Scanner"]
+    features: ["Heat Shielding", "Toxin Filter", "Struct. Scanner"],
+    stats: { label1: "Ext. Temp", val1: "450°C", label2: "Cooling", val2: "100%", desc: "Thermal barrier integrity at maximum." }
+  },
+  
+  // VEHICLES
+  tank: {
+    id: "tank",
+    category: "vehicle",
+    name: "Rhino APC-9",
+    role: "Armored Transport",
+    color: "text-emerald-500",
+    borderColor: "border-emerald-500",
+    bgGlow: "shadow-[0_0_15px_rgba(16,185,129,0.1)]",
+    icon: Car,
+    image: vehicleTank,
+    features: ["Reactive Plating", "Trophy System", "All-Terrain"],
+    stats: { label1: "Engine Temp", val1: "89°C", label2: "Fuel Cell", val2: "92%", desc: "Chassis integrity optimized. Suspension active." }
+  },
+  
+  // AIRCRAFT
+  jet: {
+    id: "jet",
+    category: "aircraft",
+    name: "Wraith Interceptor",
+    role: "Air Superiority",
+    color: "text-sky-400",
+    borderColor: "border-sky-400",
+    bgGlow: "shadow-[0_0_15px_rgba(56,189,248,0.1)]",
+    icon: Plane,
+    image: vehicleJet,
+    features: ["Stealth Coating", "G-Force Comp", "Auto-Pilot"],
+    stats: { label1: "Altitude", val1: "45k ft", label2: "Mach", val2: "2.4", desc: "Aerodynamic shielding engaged. Stealth active." }
+  },
+
+  // ROBOTICS
+  mech: {
+    id: "mech",
+    category: "robotics",
+    name: "Titan Walker",
+    role: "Heavy Support",
+    color: "text-purple-400",
+    borderColor: "border-purple-400",
+    bgGlow: "shadow-[0_0_15px_rgba(192,132,252,0.1)]",
+    icon: Bot,
+    image: vehicleMech,
+    features: ["Myomer Muscles", "Auto-Loader", "Sensor Link"],
+    stats: { label1: "Hydraulics", val1: "3000 PSI", label2: "Core", val2: "Stable", desc: "Neural link established. Gyros synced." }
+  },
+
+  // MARINE
+  sub: {
+    id: "sub",
+    category: "marine",
+    name: "Trident DSV",
+    role: "Deep Submersible",
+    color: "text-indigo-400",
+    borderColor: "border-indigo-400",
+    bgGlow: "shadow-[0_0_15px_rgba(129,140,248,0.1)]",
+    icon: Anchor,
+    image: vehicleSub,
+    features: ["Pressure Hull", "Silent Drive", "Sonar Array"],
+    stats: { label1: "Depth", val1: "800m", label2: "Pressure", val2: "81 atm", desc: "Hydrodynamic field active. Silent running." }
   }
 };
 
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeMode, setActiveMode] = useState<"stealth" | "combat" | "recon">("combat");
-  const [currentVariant, setCurrentVariant] = useState<SuitVariant>("tactical");
+  const [currentUnitId, setCurrentUnitId] = useState<string>("tactical");
   
   // Simulated Data States
   const [integrity, setIntegrity] = useState(98);
   const [battery, setBattery] = useState(87);
   const [noiseLevel, setNoiseLevel] = useState(24);
 
-  const activeConfig = SUIT_CONFIGS[currentVariant];
+  const activeConfig = AEGIS_UNITS[currentUnitId];
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -113,11 +194,6 @@ export default function Dashboard() {
     };
   }, []);
 
-  const variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground p-4 md:p-6 font-sans overflow-hidden relative flex flex-col">
       {/* Scanlines Overlay */}
@@ -127,10 +203,10 @@ export default function Dashboard() {
       <header className="flex justify-between items-end border-b border-border/50 pb-4 mb-6 relative z-10">
         <div>
           <h1 className={cn("text-4xl font-display font-bold tracking-tighter uppercase text-glow transition-colors duration-500", activeConfig.color)}>
-            AEGIS <span className="text-muted-foreground text-2xl">OS v2.4</span>
+            AEGIS <span className="text-muted-foreground text-2xl">NETWORK</span>
           </h1>
           <div className="text-xs font-mono text-muted-foreground tracking-[0.2em] flex items-center gap-2">
-            ADAPTIVE ENHANCED GUARDIAN INTERFACE SYSTEM
+            UNIVERSAL PROTECTION LAYER
             <span className="text-border">|</span>
             <span className={activeConfig.color}>{activeConfig.name}</span>
           </div>
@@ -138,15 +214,15 @@ export default function Dashboard() {
         
         <div className="flex items-center gap-8 font-mono text-sm">
           <div className="flex flex-col items-end">
-            <span className="text-muted-foreground text-[10px] uppercase">Operator Status</span>
+            <span className="text-muted-foreground text-[10px] uppercase">System Status</span>
             <span className="text-emerald-400 flex items-center gap-2">
-              <Activity className="w-3 h-3 animate-pulse" /> VITAL SIGNS NORMAL
+              <Activity className="w-3 h-3 animate-pulse" /> ONLINE
             </span>
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-muted-foreground text-[10px] uppercase">Network</span>
+            <span className="text-muted-foreground text-[10px] uppercase">Uplink</span>
             <span className={cn("flex items-center gap-2", activeConfig.color)}>
-              <Wifi className="w-3 h-3" /> SECURE LINK EST
+              <Wifi className="w-3 h-3" /> ENCRYPTED
             </span>
           </div>
           <div className="text-right">
@@ -166,45 +242,46 @@ export default function Dashboard() {
         {/* LEFT COLUMN - SENSORS & ENVIRONMENT */}
         <div className="lg:col-span-3 space-y-6 flex flex-col">
           
-          {/* NEW: BIO-SENSORY FEEDBACK (UX SECTION) */}
-          <TacticalFrame title="Sensory Feedback" className="flex-1" corner="tr">
+          {/* TELEMETRY SECTION (ADAPTS TO UNIT TYPE) */}
+          <TacticalFrame title="Unit Telemetry" className="flex-1" corner="tr">
             <div className="space-y-4">
                <div className="flex items-center gap-3 mb-2">
-                  <Heart className="text-rose-400 w-5 h-5" />
-                  <span className="font-mono text-sm">Bio-Haptics</span>
+                  <Cpu className={cn("w-5 h-5", activeConfig.color)} />
+                  <span className="font-mono text-sm">
+                    {activeConfig.category === 'human' ? 'Bio-Metrics' : 'Sys-Metrics'}
+                  </span>
                </div>
                
                <div className="grid grid-cols-2 gap-3">
                   <div className="bg-card/50 p-2 border border-border/50 rounded">
                     <div className="text-[10px] text-muted-foreground uppercase mb-1 flex items-center gap-1">
-                      <Thermometer className="w-3 h-3" /> Internal Temp
+                      <Thermometer className="w-3 h-3" /> {activeConfig.stats.label1}
                     </div>
-                    <div className="text-lg font-mono text-emerald-400">22.5°C</div>
-                    <div className="text-[9px] text-muted-foreground">OPTIMAL COMFORT</div>
+                    <div className={cn("text-lg font-mono", activeConfig.color)}>{activeConfig.stats.val1}</div>
+                    <div className="text-[9px] text-muted-foreground">NOMINAL</div>
                   </div>
                   <div className="bg-card/50 p-2 border border-border/50 rounded">
                     <div className="text-[10px] text-muted-foreground uppercase mb-1 flex items-center gap-1">
-                       <Wind className="w-3 h-3" /> Airflow
+                       <Wind className="w-3 h-3" /> {activeConfig.stats.label2}
                     </div>
-                    <div className="text-lg font-mono text-emerald-400">98%</div>
-                    <div className="text-[9px] text-muted-foreground">PURIFIED</div>
+                    <div className={cn("text-lg font-mono", activeConfig.color)}>{activeConfig.stats.val2}</div>
+                    <div className="text-[9px] text-muted-foreground">STABLE</div>
                   </div>
                </div>
 
                <div className="space-y-2 pt-2">
                  <div className="flex justify-between text-xs">
-                   <span className="text-muted-foreground">Haptic Lining</span>
+                   <span className="text-muted-foreground">Aegis Layer</span>
                    <span className="text-primary">ACTIVE</span>
                  </div>
                  <p className="text-[10px] text-muted-foreground leading-relaxed border-l-2 border-primary/30 pl-2">
-                   "Smart-fabric lining adapts to body temperature and movement. Pressure points eliminated. Sensation: Weightless."
+                   "{activeConfig.stats.desc}"
                  </p>
                </div>
                
                <div className="flex gap-2 mt-2">
-                 <span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] rounded border border-emerald-500/20">SAFE</span>
-                 <span className="px-2 py-1 bg-amber-500/10 text-amber-400 text-[10px] rounded border border-amber-500/20">SECURE</span>
-                 <span className="px-2 py-1 bg-blue-500/10 text-blue-400 text-[10px] rounded border border-blue-500/20">SILENT</span>
+                 <span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] rounded border border-emerald-500/20">SECURE</span>
+                 <span className="px-2 py-1 bg-blue-500/10 text-blue-400 text-[10px] rounded border border-blue-500/20">LINKED</span>
                </div>
             </div>
           </TacticalFrame>
@@ -214,12 +291,11 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Waves className={cn("w-5 h-5", activeConfig.color)} />
-                  <span className="font-mono text-sm">Acoustic Dampening</span>
+                  <span className="font-mono text-sm">External Scan</span>
                 </div>
                 <div className={cn("h-2 w-2 rounded-full animate-pulse shadow-[0_0_8px_currentColor]", activeConfig.color)} />
               </div>
               
-              {/* Sound Wave Visualization (Mock) */}
               <div className="h-16 flex items-end justify-between gap-1 p-2 border-b border-border/30">
                 {[...Array(12)].map((_, i) => (
                   <motion.div
@@ -230,27 +306,17 @@ export default function Dashboard() {
                   />
                 ))}
               </div>
-              <div className="grid grid-cols-2 gap-4 text-xs font-mono">
-                <div>
-                  <span className="text-muted-foreground block">Ext. Noise</span>
-                  <span className="text-lg">{Math.floor(noiseLevel)} dB</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground block">Reduction</span>
-                  <span className="text-lg text-emerald-400">-18 dB</span>
-                </div>
-              </div>
             </div>
           </TacticalFrame>
         </div>
 
         {/* CENTER COLUMN - ARMOR STATUS */}
         <div className="lg:col-span-6 flex flex-col gap-6 relative">
-          {/* Central Helmet Display */}
+          {/* Central Display */}
           <div className="flex-1 relative flex items-center justify-center min-h-[400px]">
             <AnimatePresence mode="wait">
               <motion.div 
-                key={currentVariant}
+                key={currentUnitId}
                 initial={{ scale: 0.9, opacity: 0, filter: "blur(10px)" }}
                 animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
                 exit={{ scale: 1.1, opacity: 0, filter: "blur(10px)" }}
@@ -259,11 +325,9 @@ export default function Dashboard() {
               >
                 <div className={cn("absolute inset-0 bg-[radial-gradient(circle_at_center,currentColor_0%,transparent_70%)] opacity-10", activeConfig.color)} />
                 
-                {/* Rotating Rings */}
-                <div className={cn("absolute w-[400px] h-[400px] border opacity-20 rounded-full animate-[spin_10s_linear_infinite]", activeConfig.borderColor)} />
-                <div className={cn("absolute w-[350px] h-[350px] border border-dashed opacity-30 rounded-full animate-[spin_15s_linear_infinite_reverse]", activeConfig.borderColor)} />
+                <div className={cn("absolute w-[450px] h-[450px] border opacity-10 rounded-full animate-[spin_30s_linear_infinite]", activeConfig.borderColor)} />
+                <div className={cn("absolute w-[400px] h-[400px] border border-dashed opacity-20 rounded-full animate-[spin_20s_linear_infinite_reverse]", activeConfig.borderColor)} />
                 
-                {/* Scanning Beam */}
                 <motion.div 
                    className={cn("absolute w-full h-2 blur-sm z-20 opacity-30", activeConfig.color.replace('text-', 'bg-'))}
                    animate={{ top: ["0%", "100%", "0%"] }}
@@ -273,21 +337,8 @@ export default function Dashboard() {
                 <img 
                   src={activeConfig.image} 
                   alt={activeConfig.name} 
-                  className={cn("relative z-10 max-h-[80%] object-contain mix-blend-screen drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]")}
+                  className={cn("relative z-10 max-h-[80%] max-w-[90%] object-contain mix-blend-screen drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]")}
                 />
-
-                {/* Floating Hotspots */}
-                <motion.div 
-                  className="absolute top-1/4 left-1/4 flex items-center gap-2"
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <div className={cn("w-2 h-2 rounded-full animate-ping", activeConfig.color.replace('text-', 'bg-'))} />
-                  <div className={cn("bg-black/80 border p-1.5 text-[10px] font-mono backdrop-blur-md", activeConfig.borderColor, activeConfig.color)}>
-                    VISOR: CLEAR
-                  </div>
-                </motion.div>
               </motion.div>
             </AnimatePresence>
           </div>
@@ -296,7 +347,7 @@ export default function Dashboard() {
           <TacticalFrame className="h-auto" glowing>
              <div className="grid grid-cols-4 gap-4 text-center divide-x divide-border/30">
                 <div className="space-y-1">
-                   <div className="text-[10px] uppercase text-muted-foreground">Battery</div>
+                   <div className="text-[10px] uppercase text-muted-foreground">Power</div>
                    <div className={cn("text-xl font-display flex justify-center items-center gap-2", activeConfig.color)}>
                       <Battery className="w-4 h-4" /> {battery}%
                    </div>
@@ -308,15 +359,15 @@ export default function Dashboard() {
                    </div>
                 </div>
                 <div className="space-y-1">
-                   <div className="text-[10px] uppercase text-muted-foreground">Temp</div>
+                   <div className="text-[10px] uppercase text-muted-foreground">Shields</div>
                    <div className="text-xl font-display text-white">
-                      21°C
+                      100%
                    </div>
                 </div>
                 <div className="space-y-1">
-                   <div className="text-[10px] uppercase text-muted-foreground">Oxygen</div>
+                   <div className="text-[10px] uppercase text-muted-foreground">Signal</div>
                    <div className="text-xl font-display text-white">
-                      99%
+                      -42dB
                    </div>
                 </div>
              </div>
@@ -326,38 +377,38 @@ export default function Dashboard() {
         {/* RIGHT COLUMN - ACTIVE SYSTEMS */}
         <div className="lg:col-span-3 space-y-6 flex flex-col">
           
-          {/* NEW: ECOSYSTEM SELECTOR */}
-          <TacticalFrame title="Aegis Ecosystem" className="h-auto" corner="bl">
-             <div className="grid grid-cols-1 gap-2">
-                {(Object.keys(SUIT_CONFIGS) as SuitVariant[]).map((variant) => {
-                   const config = SUIT_CONFIGS[variant];
-                   const isActive = currentVariant === variant;
+          {/* UNIVERSAL SELECTOR */}
+          <TacticalFrame title="Unit Selector" className="h-auto max-h-[60vh] overflow-y-auto" corner="bl">
+             <div className="space-y-3">
+                {Object.entries(AEGIS_UNITS).map(([key, unit]) => {
+                   const isActive = currentUnitId === key;
                    return (
                       <button
-                        key={variant}
-                        onClick={() => setCurrentVariant(variant)}
+                        key={key}
+                        onClick={() => setCurrentUnitId(key)}
                         className={cn(
-                           "flex items-center justify-between p-2 border rounded transition-all duration-300",
+                           "w-full flex items-center justify-between p-2 border rounded transition-all duration-300",
                            isActive 
-                              ? cn("bg-primary/10", config.borderColor, config.color)
+                              ? cn("bg-primary/10", unit.borderColor, unit.color)
                               : "border-border/50 hover:border-border hover:bg-white/5 text-muted-foreground"
                         )}
                       >
                          <div className="flex items-center gap-3">
-                            <config.icon className="w-4 h-4" />
+                            <div className={cn("p-1.5 rounded bg-card/50", isActive ? unit.color : "text-muted-foreground")}>
+                               <unit.icon className="w-4 h-4" />
+                            </div>
                             <div className="text-left">
-                               <div className="text-[10px] font-bold uppercase tracking-wider">{config.role}</div>
-                               <div className="text-[8px] opacity-70">{config.name}</div>
+                               <div className="text-[10px] font-bold uppercase tracking-wider">{unit.name}</div>
+                               <div className="text-[8px] opacity-70 uppercase">{unit.role}</div>
                             </div>
                          </div>
-                         {isActive && <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />}
                       </button>
                    );
                 })}
              </div>
           </TacticalFrame>
 
-          <TacticalFrame title="Active Modules" className="flex-1">
+          <TacticalFrame title="Active Systems" className="flex-1">
              <div className="space-y-4">
                 {activeConfig.features.map((feature, i) => (
                    <div key={i} className="flex justify-between items-center border-b border-white/10 pb-2">
@@ -370,14 +421,13 @@ export default function Dashboard() {
                 
                 <div className={cn("p-3 bg-opacity-5 border bg-card rounded mt-4", activeConfig.borderColor)}>
                    <div className={cn("text-[10px] uppercase mb-2 font-bold flex items-center gap-2", activeConfig.color)}>
-                      <Ghost className="w-3 h-3" /> Micro-Mirror Cloaking
+                      <Shield className="w-3 h-3" /> Aegis Dispersion
                    </div>
                    <p className="text-xs text-muted-foreground mb-3">
-                      Camera-based camouflage system is currently in standby mode. 
-                      Reflective armor dispersion ready.
+                      Universal reflective armor layer is ready for deployment.
                    </p>
                    <button className={cn("w-full py-1.5 bg-opacity-10 border text-xs hover:bg-opacity-20 transition-colors uppercase font-mono tracking-widest cursor-pointer", activeConfig.borderColor, activeConfig.color, activeConfig.color.replace('text-', 'bg-'))}>
-                      Engage Cloak
+                      Deploy Armor
                    </button>
                 </div>
              </div>
@@ -389,11 +439,10 @@ export default function Dashboard() {
       
       {/* FOOTER */}
       <footer className="mt-6 pt-4 border-t border-border/30 flex justify-between items-center text-[10px] text-muted-foreground uppercase tracking-widest">
-        <div>Reflective Armor Dispersion Module: READY</div>
+        <div>Aegis Universal Protocol: CONNECTED</div>
         <div className="flex gap-4">
-           <span>Sys: OK</span>
-           <span>Net: OK</span>
-           <span>Enc: AES-256</span>
+           <span>Unit: {activeConfig.category.toUpperCase()}</span>
+           <span>ID: {activeConfig.id.toUpperCase()}-8842</span>
         </div>
       </footer>
     </div>
